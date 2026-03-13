@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.3% 세금 계산기 - 프리랜서 & 알바</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 광고 배너 */
+        .ad-banner {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .ad-banner.bottom {
+            height: 250px;
+        }
+
+        .adad{
+            display: none;
+        }
+        /* 헤더 */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2563eb;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* 카드 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* 금액 유형 선택 */
+        .pay-type-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .pay-type-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .pay-type-btn:hover {
+            border-color: #93c5fd;
+        }
+
+        .pay-type-btn.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        /* 입력 필드 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 50px 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* 근무 조건 */
+        .work-conditions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .work-input {
+            padding: 12px 40px 12px 12px;
+            font-size: 15px;
+        }
+
+        /* 수당 옵션 */
+        .bonus-section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .bonus-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        .checkbox-label {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .checkbox-label strong {
+            display: block;
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+
+        .checkbox-label span {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .night-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-left: 30px;
+        }
+
+        .night-input {
+            width: 70px;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* 계산 버튼 */
+        .calc-btn {
+            width: 100%;
+            padding: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .calc-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* 결과 카드 */
+        .result-card .card-header {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        /* 금액 환산 */
+        .conversion-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .conversion-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .conversion-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .conversion-item {
+            background: white;
+            border-radius: 10px;
+            padding: 14px 8px;
+            text-align: center;
+        }
+
+        .conversion-item.active {
+            background: #dbeafe;
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+
+        .conversion-item.hourly.active {
+            background: #dbeafe;
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+
+        .conversion-item.monthly.active {
+            background: #d1fae5;
+            box-shadow: 0 0 0 2px #059669;
+        }
+
+        .conversion-item.yearly.active {
+            background: #fef3c7;
+            box-shadow: 0 0 0 2px #d97706;
+        }
+
+        .conversion-icon {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .conversion-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .conversion-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .conversion-unit {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .conversion-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .conversion-item.hourly.active .conversion-badge {
+            background: #2563eb;
+            color: white;
+        }
+
+        .conversion-item.monthly.active .conversion-badge {
+            background: #059669;
+            color: white;
+        }
+
+        .conversion-item.yearly.active .conversion-badge {
+            background: #d97706;
+            color: white;
+        }
+
+        /* 결과 아이템 */
+        .result-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .result-icon.blue {
+            background: #dbeafe;
+        }
+
+        .result-icon.amber {
+            background: #fef3c7;
+        }
+
+        .result-icon.indigo {
+            background: #e0e7ff;
+        }
+
+        .result-icon.red {
+            background: #fee2e2;
+        }
+
+        .result-icon.green {
+            background: #059669;
+            color: white;
+            width: 48px;
+            height: 48px;
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .result-value {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .result-value.blue {
+            color: #1e293b;
+        }
+
+        .result-value.amber {
+            color: #d97706;
+        }
+
+        .result-value.indigo {
+            color: #4f46e5;
+        }
+
+        .result-value.red {
+            color: #dc2626;
+        }
+
+        .result-value.green {
+            color: #059669;
+            font-size: 24px;
+        }
+
+        /* 최종 결과 */
+        .final-result {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        /* 정보 카드 */
+        .info-card {
+            background: white;
+        }
+
+        .info-item {
+            margin-bottom: 16px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .info-box-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .info-box ul {
+            font-size: 12px;
+            color: #6b7280;
+            padding-left: 16px;
+        }
+
+        .info-box li {
+            margin-bottom: 4px;
+        }
+
+        /* 푸터 */
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        footer p {
+            margin-bottom: 4px;
+        }
+
+        footer .small {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* 토스트 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 숨김 */
+        .hidden {
+            display: none;
+        }
+        
+        /* 모바일 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            .conversion-grid {
+                gap: 6px;
+            }
+
+            .conversion-item {
+                padding: 10px 4px;
+            }
+
+            .conversion-value {
+                font-size: 13px;
+            }
+
+            .work-conditions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 상단 광고 -->
+        <div class="ad-banner adad">상단 광고 배너 (728x90)</div>
+
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="badge">
+                <span>🧮</span> 프리랜서 & 알바 필수 도구
+            </div>
+            <h1>3.3% 세금 계산기</h1>
+            <p class="subtitle">시급/월급/연봉 환산하고 주휴·야간수당까지 한 번에!</p>
+        </div>
+
+        <!-- 입력 카드 -->
+        <div class="card">
+            <div class="card-header">
+                <span>💱</span> 금액 입력 & 환산
+            </div>
+            <div class="card-body">
+                <!-- 금액 유형 선택 -->
+                <div class="pay-type-buttons">
+                    <button class="pay-type-btn active" data-type="hourly">
+                        <span>⏰</span> 시급
+                    </button>
+                    <button class="pay-type-btn" data-type="monthly">
+                        <span>📅</span> 월급
+                    </button>
+                    <button class="pay-type-btn" data-type="yearly">
+                        <span>☀️</span> 연봉
+                    </button>
+                </div>
+
+                <!-- 금액 입력 -->
+                <div class="form-group">
+                    <label class="form-label" id="amountLabel">시급 입력 (원)</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="form-input" id="amount" placeholder="예: 10,000">
+                        <span class="input-suffix">원</span>
+                    </div>
+                </div>
+
+                <!-- 근무 조건 -->
+                <div class="work-conditions">
+                    <div>
+                        <label class="form-label">⏱️ 하루 근무시간</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="form-input work-input" id="hoursPerDay" value="8">
+                            <span class="input-suffix">시간</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">📆 주 근무일수</label>
+                        <div class="input-wrapper">
+                            <input type="number" class="form-input work-input" id="daysPerWeek" value="5">
+                            <span class="input-suffix">일</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 수당 옵션 -->
+                <div class="bonus-section">
+                    <div class="bonus-title">추가 수당</div>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" class="checkbox" id="weeklyHoliday">
+                        <label class="checkbox-label" for="weeklyHoliday">
+                            <strong>☀️ 주휴수당 포함</strong>
+                            <span>주 15시간 이상 근무 시 주휴일 유급 휴일 수당 적용</span>
+                        </label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <input type="checkbox" class="checkbox" id="nightBonus">
+                        <label class="checkbox-label" for="nightBonus">
+                            <strong>🌙 야간수당 포함</strong>
+                            <span>오후 10시~오전 6시 근무 시 50% 가산 수당 적용</span>
+                        </label>
+                    </div>
+                    <div class="night-input-wrapper hidden" id="nightInputWrapper">
+                        <span>월간 야간 근무:</span>
+                        <input type="number" class="night-input" id="nightHours" value="0">
+                        <span>시간</span>
+                    </div>
+                </div>
+
+                <button class="calc-btn" onclick="calculate()">
+                    <span>🧮</span> 계산하기
+                </button>
+            </div>
+        </div>
+
+        <!-- 결과 카드 -->
+        <div class="card result-card hidden" id="resultCard">
+            <div class="card-header">
+                <span>📋</span> 계산 결과
+            </div>
+            <div class="card-body">
+                <!-- 금액 환산 -->
+                <div class="conversion-box">
+                    <div class="conversion-title">
+                        <span>💱</span> 금액 환산
+                    </div>
+                    <div class="conversion-grid">
+                        <div class="conversion-item hourly" id="hourlyBox">
+                            <div class="conversion-icon">⏰</div>
+                            <div class="conversion-label">시급</div>
+                            <div class="conversion-value" id="hourlyValue">-</div>
+                            <div class="conversion-unit">원</div>
+                            <span class="conversion-badge hidden" id="hourlyBadge">입력</span>
+                        </div>
+                        <div class="conversion-item monthly" id="monthlyBox">
+                            <div class="conversion-icon">📅</div>
+                            <div class="conversion-label">월급</div>
+                            <div class="conversion-value" id="monthlyValue">-</div>
+                            <div class="conversion-unit">원</div>
+                            <span class="conversion-badge hidden" id="monthlyBadge">입력</span>
+                        </div>
+                        <div class="conversion-item yearly" id="yearlyBox">
+                            <div class="conversion-icon">☀️</div>
+                            <div class="conversion-label">연봉</div>
+                            <div class="conversion-value" id="yearlyValue">-</div>
+                            <div class="conversion-unit">원</div>
+                            <span class="conversion-badge hidden" id="yearlyBadge">입력</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주휴수당 -->
+                <div class="result-item hidden" id="weeklyHolidayRow">
+                    <div class="result-left">
+                        <div class="result-icon amber">☀️</div>
+                        <div>
+                            <div class="result-label">주휴수당</div>
+                        </div>
+                    </div>
+                    <div class="result-value amber" id="weeklyHolidayValue">+0원</div>
+                </div>
+
+                <!-- 야간수당 -->
+                <div class="result-item hidden" id="nightBonusRow">
+                    <div class="result-left">
+                        <div class="result-icon indigo">🌙</div>
+                        <div>
+                            <div class="result-label">야간수당 (+50%)</div>
+                        </div>
+                    </div>
+                    <div class="result-value indigo" id="nightBonusValue">+0원</div>
+                </div>
+
+                <!-- 세금 -->
+                <div class="result-item">
+                    <div class="result-left">
+                        <div class="result-icon red">📉</div>
+                        <div>
+                            <div class="result-label">원천징수세 (3.3%)</div>
+                        </div>
+                    </div>
+                    <div class="result-value red" id="taxValue">-0원</div>
+                </div>
+
+                <!-- 실수령액 -->
+                <div class="final-result">
+                    <div class="result-item" style="padding: 0;">
+                        <div class="result-left">
+                            <div class="result-icon green">💰</div>
+                            <div>
+                                <div class="result-label" style="color: #059669;">월 실수령액</div>
+                            </div>
+                        </div>
+                        <div class="result-value green" id="netIncomeValue">0원</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정보 카드 -->
+        <div class="card info-card">
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="info-title">📌 3.3% 원천징수세</div>
+                    <div class="info-text">
+                        프리랜서나 아륰바이트 소득에 대해 원천징수되는 세금입니다. 
+                        연말정산 시 정산될 수 있으며, 실제 세율은 소득에 따라 다를 수 있습니다.
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-title">☀️ 주휴수당</div>
+                    <div class="info-text">
+                        주 15시간 이상 근무하는 근로자에게 주 1회 유급 휴일을 부여하고, 
+                        이에 따른 수당을 지급해야 합니다. (근로기준법 제55조)
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-title">🌙 야간수당</div>
+                    <div class="info-text">
+                        오후 10시부터 오전 6시까지의 근무에 대해 통상임금의 50%를 가산하여 지급합니다.
+                        (근로기준법 제56조)
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-title">환산 기준</div>
+                    <ul>
+                        <li>한 달 = 4.345주 (52주 ÷ 12개월)</li>
+                        <li>시급 → 월급: 시급 × 하루근무시간 × 주근무일수 × 4.345</li>
+                        <li>월급 → 시급: 월급 ÷ (하루근무시간 × 주근무일수 × 4.345)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 광고 -->
+        <div class="ad-banner bottom adad">하단 광고 배너 (970x250)</div>
+
+        <!-- 푸터 -->
+        <footer>
+            <p>© 2024 3.3% 세금 계산기. 프리랜서와 알바생을 위한 물론 도구</p>
+            <p class="small">본 계산 결과는 참고용이며, 실제 세금은 상황에 따라 다를 수 있습니다.</p>
+        </footer>
+    </div>
+
+    <!-- 토스트 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 상태 관리
+        let payType = 'hourly';
+        const MONTHLY_WEEKS = 4.345;
+        const HOURLY_WEEKLY_HOLIDAY_HOURS = 8;
+        const NIGHT_BONUS_RATE = 0.5;
+
+        // DOM 요소
+        const payTypeBtns = document.querySelectorAll('.pay-type-btn');
+        const amountInput = document.getElementById('amount');
+        const amountLabel = document.getElementById('amountLabel');
+        const nightBonusCheckbox = document.getElementById('nightBonus');
+        const nightInputWrapper = document.getElementById('nightInputWrapper');
+        const resultCard = document.getElementById('resultCard');
+        const toast = document.getElementById('toast');
+
+        // 금액 유형 선택
+        payTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                payTypeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                payType = btn.dataset.type;
+                
+                const labels = {
+                    hourly: '시급 입력 (원)',
+                    monthly: '월급 입력 (원)',
+                    yearly: '연봉 입력 (원)'
+                };
+                const placeholders = {
+                    hourly: '예: 10,000',
+                    monthly: '예: 2,500,000',
+                    yearly: '예: 30,000,000'
+                };
+                
+                amountLabel.textContent = labels[payType];
+                amountInput.placeholder = placeholders[payType];
+            });
+        });
+
+        // 야간수당 체크박스
+        nightBonusCheckbox.addEventListener('change', () => {
+            nightInputWrapper.classList.toggle('hidden', !nightBonusCheckbox.checked);
+        });
+
+        // 숫자 포맷팅
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+
+        // 토스트 표시
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 계산 함수
+        function calculate() {
+            const amountStr = amountInput.value.replace(/,/g, '');
+            const numAmount = parseFloat(amountStr);
+            
+            if (isNaN(numAmount) || numAmount <= 0) {
+                showToast('올바른 금액을 입력해주세요');
+                return;
+            }
+
+            const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 8;
+            const daysPerWeek = parseFloat(document.getElementById('daysPerWeek').value) || 5;
+            const nightHours = parseFloat(document.getElementById('nightHours').value) || 0;
+            const includeWeeklyHoliday = document.getElementById('weeklyHoliday').checked;
+            const includeNightBonus = nightBonusCheckbox.checked;
+            
+            const monthlyWorkHours = daysPerWeek * hoursPerDay * MONTHLY_WEEKS;
+
+            // 시급/월급/연봉 환산
+            let hourly, monthly, yearly;
+            
+            switch (payType) {
+                case 'hourly':
+                    hourly = numAmount;
+                    monthly = numAmount * monthlyWorkHours;
+                    yearly = monthly * 12;
+                    break;
+                case 'monthly':
+                    monthly = numAmount;
+                    hourly = numAmount / monthlyWorkHours;
+                    yearly = numAmount * 12;
+                    break;
+                case 'yearly':
+                    yearly = numAmount;
+                    monthly = numAmount / 12;
+                    hourly = monthly / monthlyWorkHours;
+                    break;
+            }
+
+            // 주휴수당 계산
+            let weeklyHolidayPay = 0;
+            if (includeWeeklyHoliday && hoursPerDay * daysPerWeek >= 15) {
+                const weeklyWorkHours = hoursPerDay * daysPerWeek;
+                const weeklyHolidayHoursPerWeek = Math.min(weeklyWorkHours / 5, HOURLY_WEEKLY_HOLIDAY_HOURS);
+                weeklyHolidayPay = hourly * weeklyHolidayHoursPerWeek * MONTHLY_WEEKS;
+            }
+
+            // 야간수당 계산
+            let nightBonusPay = 0;
+            if (includeNightBonus && nightHours > 0) {
+                nightBonusPay = hourly * nightHours * MONTHLY_WEEKS * NIGHT_BONUS_RATE;
+            }
+
+            // 세금 및 실수령액
+            const finalMonthly = monthly + weeklyHolidayPay + nightBonusPay;
+            const tax = Math.round(finalMonthly * 0.033);
+            const netIncome = Math.round(finalMonthly - tax);
+
+            // 결과 표시
+            document.getElementById('hourlyValue').textContent = formatNumber(Math.round(hourly));
+            document.getElementById('monthlyValue').textContent = formatNumber(Math.round(monthly));
+            document.getElementById('yearlyValue').textContent = formatNumber(Math.round(yearly));
+
+            // 입력 배지 표시
+            document.getElementById('hourlyBadge').classList.toggle('hidden', payType !== 'hourly');
+            document.getElementById('monthlyBadge').classList.toggle('hidden', payType !== 'monthly');
+            document.getElementById('yearlyBadge').classList.toggle('hidden', payType !== 'yearly');
+
+            // 활성화 스타일
+            document.getElementById('hourlyBox').classList.toggle('active', payType === 'hourly');
+            document.getElementById('monthlyBox').classList.toggle('active', payType === 'monthly');
+            document.getElementById('yearlyBox').classList.toggle('active', payType === 'yearly');
+
+            // 주휴수당
+            if (weeklyHolidayPay > 0) {
+                document.getElementById('weeklyHolidayRow').classList.remove('hidden');
+                document.getElementById('weeklyHolidayValue').textContent = '+' + formatNumber(Math.round(weeklyHolidayPay)) + '원';
+            } else {
+                document.getElementById('weeklyHolidayRow').classList.add('hidden');
+            }
+
+            // 야간수당
+            if (nightBonusPay > 0) {
+                document.getElementById('nightBonusRow').classList.remove('hidden');
+                document.getElementById('nightBonusValue').textContent = '+' + formatNumber(Math.round(nightBonusPay)) + '원';
+            } else {
+                document.getElementById('nightBonusRow').classList.add('hidden');
+            }
+
+            // 세금, 실수령액
+            document.getElementById('taxValue').textContent = '-' + formatNumber(tax) + '원';
+            document.getElementById('netIncomeValue').textContent = formatNumber(netIncome) + '원';
+
+            // 결과 카드 표시
+            resultCard.classList.remove('hidden');
+            
+            // 스크롤
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 입력 시 숫자 포맷팅
+        amountInput.addEventListener('input', (e) => {
+            const value = e.target.value.replace(/[^0-9]/g, '');
+            if (value) {
+                e.target.value = formatNumber(parseInt(value));
+            }
+        });
+
+        // 엔터키로 계산
+        amountInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') calculate();
+        });
+    </script>
+</body>
+</html>
